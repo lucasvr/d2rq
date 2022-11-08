@@ -69,8 +69,8 @@
 		<javac srcdir="${src}"
 				destdir="${build}"
 				debug="on"
-				source="1.5"
-				target="1.5"
+				source="1.6"
+				target="1.6"
 				includeAntRuntime="false">
 			<classpath refid="project.class.path"/>
 		</javac>
@@ -84,8 +84,8 @@
 		<javac srcdir="${src.tests}"
 				destdir="${build.tests}"
 				debug="on"
-				source="1.5"
-				target="1.5"
+				source="1.6"
+				target="1.6"
 				includeAntRuntime="false">
 			<classpath>
 				<path refid="project.class.path"/>
