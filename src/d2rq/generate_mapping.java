@@ -35,6 +35,7 @@ public class generate_mapping extends CommandLineTool {
 		printStandardArguments(false);
 		System.err.println("  Options:");
 		printConnectionOptions();
+		System.err.println("    -k primary_key  Primary key (default: retrieved from DB)");
 		System.err.println("    -o outfile.ttl  Output file name (default: stdout)");
 		System.err.println("    -v              Generate RDFS+OWL vocabulary instead of mapping file");
 		System.err.println("    --verbose       Print debug information");
@@ -44,17 +45,25 @@ public class generate_mapping extends CommandLineTool {
 
 	private ArgDecl outfileArg = new ArgDecl(true, "o", "out", "outfile");
 	private ArgDecl vocabAsOutput = new ArgDecl(false, "v", "vocab");
+	private ArgDecl primaryKeyArg = new ArgDecl(true, "k", "primary_key");
 	
 	public void initArgs(CommandLine cmd) {
 		cmd.add(outfileArg);
 		cmd.add(vocabAsOutput);
+		cmd.add(primaryKeyArg);
 	}
 
 	public void run(CommandLine cmd, SystemLoader loader) throws IOException {
 		if (cmd.numItems() == 1) {
 			loader.setJdbcURL(cmd.getItem(0));
 		}
-		
+
+		String pk = null;
+		if (cmd.contains(primaryKeyArg)) {
+			pk = cmd.getArg(primaryKeyArg).getValue();
+			log.info("Primary key set to " + pk);
+		}
+
 		PrintStream out;
 		if (cmd.contains(outfileArg)) {
 			File f = new File(cmd.getArg(outfileArg).getValue());
@@ -66,6 +75,7 @@ public class generate_mapping extends CommandLineTool {
 		}
 
 		MappingGenerator generator = loader.openMappingGenerator();
+		generator.setPrimaryKey(pk);
 		try {
 			if (cmd.contains(vocabAsOutput)) {
 				Model model = generator.vocabularyModel();

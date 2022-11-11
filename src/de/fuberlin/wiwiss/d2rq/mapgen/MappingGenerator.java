@@ -59,6 +59,7 @@ public class MappingGenerator {
 	protected String instanceNamespaceURI;
 	private String vocabNamespaceURI;
 	private String driverClass = null;
+	private String primaryKey = null;
 	private Filter filter = Filter.ALL;
 	protected PrintWriter out = null;
 	private Model vocabModel = ModelFactory.createDefaultModel();
@@ -79,6 +80,10 @@ public class MappingGenerator {
 		instanceNamespaceURI = "";
 		vocabNamespaceURI = "vocab/";
 		driverClass = ConnectedDB.guessJDBCDriverClass(database.getJdbcURL());
+	}
+
+	public void setPrimaryKey(String pk) {
+		this.primaryKey = pk;
 	}
 
 	public void setMapNamespaceURI(String uri) {
@@ -577,11 +582,17 @@ public class MappingGenerator {
 	}
 
 	private List<Attribute> identifierColumns(RelationName tableName) {
-		List<Attribute> columns = schema.primaryKeyColumns(tableName);
-		if (filter.matchesAll(columns)) {
-			return filter(columns, true, "identifier column");
+		if (this.primaryKey != null) {
+			List<Attribute> columns = new ArrayList<Attribute>();
+			columns.add(new Attribute(tableName, this.primaryKey));
+			return columns;
+		} else {
+			List<Attribute> columns = schema.primaryKeyColumns(tableName);
+			if (filter.matchesAll(columns)) {
+				return filter(columns, true, "identifier column");
+			}
+			return Collections.<Attribute>emptyList();
 		}
-		return Collections.<Attribute>emptyList();
 	}
 	
 	protected List<Attribute> filter(List<Attribute> columns, boolean requireDistinct, String reason) {
